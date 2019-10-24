@@ -1,0 +1,5 @@
+{:deps 
+ {org.clojure/clojure {:mvn/version "1.10.1-beta2"}
+  org.clojure/core.match {:mvn/version "0.3.0"}}
+ :aliases {}
+ :paths ["src"]}

@@ -1,0 +1,159 @@
+* Matches 
+
+This little library is built on top of core.match
+
+It exposes 3 straighforward (but useful I hope) macros: 
+
+- =deft=/=defc= defining a type
+- =fm=/=defm= pattern matching lambdas
+
+** Tutorial 
+
+*** Defining a type 
+
+#+begin_src clojure
+(deft num [val]) ;; defines a simple record with a field 'val
+#+end_src
+
+It can be instanciated like this
+
+#+begin_src clojure
+(num 1) ;;=> (num 1)
+#+end_src
+
+It prints in a more concise way than default clojure record e.g =(num 1)=
+
+We can access its field with normal clojure syntax.
+
+#+begin_src clojure
+(:val (num 1)) ;;=> 1
+#+end_src
+
+A predicate is available too
+
+#+begin_src clojure
+(num? (num 1)) ;;=> true
+#+end_src
+
+A type can have several fields
+
+#+begin_src clojure
+(deft fork [left right])
+#+end_src
+
+And take protocols implementation as defrecord do:
+
+#+begin_src clojure
+(deft myfun [f]
+  clojure.lang.IFn
+  (invoke [this x] ((:f this) x)))
+
+(= 1 ((myfun identity) 1))
+#+end_src
+
+*** =defm=  
+
+Is defining a pattern matched function.
+
+Where user types (defined with =deft= or =defc=) can be matched/destructured
+
+#+begin_src clojure
+(defm sum
+  [(num x) (num y)] (num (+ x y))
+  [(fork x y) z] (sum (sum x y) z)
+  [x (fork y z)] (sum x (sum y z)))
+
+(= (sum (num 1) (num 2))
+   (num 3))
+
+(= (num 10)
+   (sum (fork (num 3) (fork (num 1) (num 2)))
+        (num 4)))
+#+end_src
+
+=fm= (anonymous form) 
+
+#+begin_src clojure
+(let [f (fm [x y] :a
+            [x y z] :b)]
+  (and (= :a (f 1 2))
+       (= :b (f 1 2 3))))
+#+end_src
+
+Sometimes you want the whole structure, not destructured
+
+#+begin_src clojure
+(= ((fm [(num? x) (fork y z)] [x y z])
+    ;; (num? x) is what I call a type-predicate pattern
+    ;; it binds x to the whole structure
+    (num 1)
+    (fork 2 3))
+
+   [(num 1) 2 3])
+#+end_src
+
+=defm= can have several arities
+
+#+begin_src clojure
+(defm myfun
+  [0 x] :a
+  [1 x] :b
+  [x y] :c
+  [0 x y] :d
+  [x y z g] :e)
+
+(= :a (myfun 0 42))
+(= :b (myfun 1 'iop))
+(= :c (myfun 2 3))
+(= :d (myfun 0 :foo :bar))
+(= :e (myfun 0 :foo :bar :baz))
+#+end_src
+
+Even variadic
+
+#+begin_src clojure
+(defm add
+  [x] x
+  [0 x] x
+  [x 0] x
+  [x y] (+ x y)
+  [x y & xs] (reduce add x (cons y xs)))
+
+(= 3 (add 1 2))
+(= 10 (add 1 2 3 4))
+#+end_src
+
+You can put several variadic patterns
+
+#+begin_src clojure
+(defm add
+  [x y & nil] (+ x y)
+  [x y & xs] (apply add (add x y) xs))
+
+(= 18 (add 3 4 5 )6)
+#+end_src
+
+** =defc= 
+
+=defc= defines a new type, like =deft=.
+
+Along with a pattern matched constructor function:
+
+#+begin_src clojure
+(defc duo [a b] ;; this is the same as deft, a and b are the record fields
+  ;; constructor cases
+  ;; each case returns the fields values
+  [(num x) (num y)] [x y] ;; here x and y will be bound to a and b fields
+  [(fork x _) (fork _ y)] [x y]
+  [x y] [x y]
+  ;; the constructor can have several arities as long as it returns the required fields values
+  [(num x) (num y) z] [(+ x y) z]) 
+
+(duo (num 1) (num 2)) ;;=> (duo 1 2)
+(duo (fork :a :b) (fork :c :d)) ;;=> (duo :a :d)
+(duo :what :ever) ;=> (duo :what :ever)
+(duo (num 1) (num 2) 3) ;=> (duo 3 3)
+#+end_src
+
+
+
