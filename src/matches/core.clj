@@ -11,16 +11,19 @@
 (defn map-keys [f x]
   (zipmap (map f (keys x)) (vals x)))
 
+(defn name->class-symbol [x]
+  (mksym 'R_ x))
+
 ;; type
 
 (defmacro deft
   [n fields & body]
-  (let [recsym (mksym 'R_ n)
+  (let [recsym (name->class-symbol n)
         constr (mksym '-> recsym)
         predsym (mksym n "?")]
     `(do (declare ~n ~predsym)
          (defrecord ~recsym ~fields ~@body)
-         (def ~n (with-meta ~constr {::type-constructor true}))
+         (def ~n (with-meta ~constr {::type-constructor true  ::class ~recsym}))
          (def ~(mksym 'map-> n) ~(mksym 'map-> recsym))
          (def ~predsym (with-meta (fn  [x#] (instance? ~recsym x#)) {::type-predicate true}))
          (defmethod clojure.pprint/simple-dispatch
@@ -34,6 +37,9 @@
 
 (defn type-constructor? [x]
   (some-> x meta ::type-constructor))
+
+(defn ->class [x]
+  (some-> x meta ::class))
 
 (defn type-predicate? [x]
   (some-> x meta ::type-predicate))
@@ -201,8 +207,5 @@
          (defm ~name
            ~@(interleave (take-nth 2 body)
                         (map (fn [x] `(apply ~sym ~x)) (take-nth 2 (next body)))))))))
-
-
-;; defc
 
 

@@ -14,7 +14,7 @@ It exposes 4 straighforward (but useful I hope) macros:
 Put the following in your =deps.edn= 
 
 #+begin_src clojure
-{matches {:mvn/version "0.1.3-SNAPSHOT"}}
+{pbaille/matches {:mvn/version "0.1.7-SNAPSHOT"}}
 #+end_src
 
 Then you can require it like this: 
