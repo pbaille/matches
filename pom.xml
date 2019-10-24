@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>matches</groupId>
+  <artifactId>matches</artifactId>
+  <version>0.1.2-SNAPSHOT</version>
+  <name>matches</name>
+  <url>https://github.com/pbaille/matches</url>
+  <scm>
+    <connection>scm:git:git://github.com/pbaille/matches.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/pbaille/matches.git</developerConnection>
+    
+    <url>https://github.com/pbaille/matches</url>
+  </scm>
+   <dependencies>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>clojure</artifactId>
+      <version>1.10.1-beta2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>core.match</artifactId>
+      <version>0.3.0</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+  </build>
+  <repositories>
+    <repository>
+      <id>clojars</id>
+      <url>https://repo.clojars.org/</url>
+    </repository>
+  </repositories>
+</project>
